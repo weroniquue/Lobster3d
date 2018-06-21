@@ -5,20 +5,15 @@
  */
 package game;
 
-import engine.GameItem;
-import engine.IGameLogic;
-import engine.MouseInput;
-import engine.Window;
-import engine.graph.Camera;
-import engine.graph.Mesh;
-import engine.graph.OBJLoader;
-import engine.graph.Texture;
-import java.util.ArrayList;
-import java.util.List;
+import engine.*;
+import engine.graph.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
+import engine.graph.DirectionalLight;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -29,15 +24,25 @@ public class LobsterGame implements IGameLogic {
     private static final float MOUSE_SENSITIVITY = 0.2f;
     private final Vector3f cameraInc;
     private final Renderer renderer;
+    private final Camera camera;
     //private GameItem[] gameItems;
     private List<GameItem> gameItems;
-    private final Camera camera;
+    //private Scene scene;
+    private SceneLight sceneLight;
+    private Hud hud;
+    private Scene scene;
+
+    private float lightAngle;
     private static final float CAMERA_POS_STEP = 0.05f;
+    private float spotAngle = 0;
+    private float spotInc = 1;
 
     public LobsterGame() {
         renderer = new Renderer();
         camera = new Camera();
-        cameraInc = new Vector3f(0, 0, 0);
+        cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
+        lightAngle = -90;
+
         gameItems = new ArrayList<>();
     }
 
@@ -45,93 +50,67 @@ public class LobsterGame implements IGameLogic {
     public void init(Window window) throws Exception {
 
         renderer.init(window);
-        //        // Create the Mesh
-        //        float[] positions = new float[]{
-        //            // VO
-        //            -0.5f, 0.5f, 0.5f,
-        //            // V1
-        //            -0.5f, -0.5f, 0.5f,
-        //            // V2
-        //            0.5f, -0.5f, 0.5f,
-        //            // V3
-        //            0.5f, 0.5f, 0.5f,
-        //            // V4
-        //            -0.5f, 0.5f, -0.5f,
-        //            // V5
-        //            0.5f, 0.5f, -0.5f,
-        //            // V6
-        //            -0.5f, -0.5f, -0.5f,
-        //            // V7
-        //            0.5f, -0.5f, -0.5f,};
-        //
-        //        int[] indices = new int[]{
-        //            // Front face
-        //            0, 1, 3, 3, 1, 2,
-        //            // Top Face
-        //            4, 0, 3, 5, 4, 3,
-        //            // Right face
-        //            3, 2, 7, 5, 3, 7,
-        //            // Left face
-        //            6, 1, 0, 6, 0, 4,
-        //            // Bottom face
-        //            2, 1, 6, 2, 6, 7,
-        //            // Back face
-        //            7, 6, 4, 7, 4, 5,};
-        //
-        //        float[] colours = new float[]{
-        //            1.0f, 1.0f, 0.0f,
-        //            0.545f, 0.0f, 0.545f,
-        //            0.780f, 0.082f, 0.522f,
-        //            1.0f, 0.078f, 0.576f,
-        //            1.0f, 1.0f, 0.0f,
-        //            0.545f, 0.0f, 0.545f,
-        //            0.780f, 0.082f, 0.522f,
-        //            1.0f, 0.078f, 0.576f,};
-        //        Cube cube = new Cube();
-        //        Texture texture = new Texture("button.png");
-        //        Texture a = new Texture("a.png");
-        //
-        //        Mesh mesh = new Mesh(cube.getPositions(), cube.getTextCoords(), cube.getIndices(), texture);
-        //        GameItem gameItem = new GameItem(mesh);
-        //        gameItem.setScale(0.5f);
-        //        gameItem.setPosition(0, 0, -2);
-        //        gameItem.setActive(true);
-        //
-        //        Mesh mesh1 = new Mesh(cube.getPositions(), cube.getTextCoords(), cube.getIndices(), a);
-        //
-        //        GameItem gameItem2 = new GameItem(mesh1);
-        //        gameItem2.setScale(0.5f);
-        //        gameItem2.setPosition(0.5f, 0.5f, -2);
-        //
-        //        GameItem gameItem3 = new GameItem(mesh);
-        //        gameItem3.setScale(0.5f);
-        //        gameItem3.setPosition(0, 0, -2.5f);
-        //
-        //        GameItem gameItem4 = new GameItem(mesh1);
-        //        gameItem4.setScale(0.5f);
-        //        gameItem4.setPosition(0.5f, 0, -2.5f);
-        //
-        //        gameItems.add(gameItem);
-        //        gameItems.add(gameItem2);
-        //        gameItems.add(gameItem3);
-        //        gameItems.add(gameItem4);
 
-        Mesh mesh = OBJLoader.loadMesh("piasek.obj");
-        Texture texture = new Texture("piasek.png");
-        mesh.setTexture(texture);
+        scene = new Scene();
+
+        //Setup GameItems
+        float reflectance = 1f;
+        Mesh mesh = OBJLoader.loadMesh("/models/cube.obj");
+        Texture texture = new Texture("/textures/piasek.png");
+        Material material = new Material(texture, reflectance);
+        mesh.setMaterial(material);
+
+        /*float blockScale = 0.5f;
+        float skyBoxScale = 10.0f;
+        float extension = 2.0f;
+
+        float startx = extension * (-skyBoxScale + blockScale);
+        float startz = extension * (skyBoxScale - blockScale);
+        float starty = -1.0f;
+        float inc = blockScale * 2;
+
+        float posx = startx;
+        float posz = startz;
+        float incy = 0.0f;
+        int NUM_ROWS = (int) (extension * skyBoxScale * 2 / inc);
+        int NUM_COLS = (int) (extension * skyBoxScale * 2 / inc);
+        GameItem[] gameItems = new GameItem[NUM_ROWS * NUM_COLS];
+        for (int i = 0; i < NUM_ROWS; i++) {
+            for (int j = 0; j < NUM_COLS; j++) {
+                GameItem gameItem = new GameItem(mesh);
+                gameItem.setScale(blockScale);
+                incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
+                gameItem.setPosition(posx, starty + incy, posz);
+                gameItems[i * NUM_COLS + j] = gameItem;
+
+                posx += inc;
+            }
+            posx = startx;
+            posz -= inc;
+        }
+        scene.setGameItems(gameItems);*/
         GameItem gameItem = new GameItem(mesh);
-        gameItem.setScale(0.5f);
-        gameItem.setPosition(0, -1, -2);
-        
+        gameItem.setScale(1.5f);
+        gameItem.setPosition(0.0f, 0.0f, 0.0f);
+
         gameItems.add(gameItem);
-        
-        
-        Mesh palma = OBJLoader.loadMesh("palma.obj");
-        GameItem gameItemPalma = new GameItem(palma);
-        gameItemPalma.setScale(0.095f);
-        gameItemPalma.setPosition(0, -1, -2);
-        
-        gameItems.add(gameItemPalma);
+        scene.setGameItems(gameItems);
+
+        // Setup  SkyBox
+        SkyBox skyBox = new SkyBox("/models/skybox.obj", "/textures/sbox.png");
+        skyBox.setScale(50.0f);
+        scene.setSkyBox(skyBox);
+
+        // Setup Lights
+        setupLights();
+
+        // Create HUD
+        hud = new Hud("DEMO");
+
+        camera.getPosition().x = 0.65f;
+        camera.getPosition().y = 1.15f;
+        camera.getPosition().y = 4.34f;
+
     }
 
     @Override
@@ -154,34 +133,54 @@ public class LobsterGame implements IGameLogic {
             cameraInc.y = 1;
         }
 
-        //wybor aktywenej kostki po kliknieciu na tab, updatuje sie tylko aktywna kostka
-        if (window.isKeyPressed(GLFW_KEY_TAB)) {
-            int index = 0;
-            for (int i = 0; i < gameItems.size(); i++) {
-                if (gameItems.get(i).isActive()) {
-                    gameItems.get(i).setActive(false);
-                    i += 1;
-                    if (i >= gameItems.size()) {
-                        i = 0;
-                    }
-                    gameItems.get(i).setActive(true);
-                }
-
-            }
-        }
-
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput) {
-        // Update camera position
-        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
 
+        System.out.println("Camera:x "+ camera.getPosition().x + "y " + camera.getPosition().y + "z " + camera.getPosition().z);
+         System.out.println("Rotation:x "+ camera.getRotation().x + "y " + camera.getRotation().y + "z " + camera.getRotation().z);
+        
         // Update camera based on mouse            
         if (mouseInput.isRightButtonPressed()) {
             Vector2f rotVec = mouseInput.getDisplVec();
             camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
+
+            // Update HUD compass
+            hud.rotateCompass(camera.getRotation().y);
         }
+
+        // Update camera position
+        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
+
+        SceneLight sceneLight = scene.getSceneLight();
+
+        // Update directional light direction, intensity and colour
+        DirectionalLight directionalLight = sceneLight.getDirectionalLight();
+        lightAngle += 1.1f;
+        directionalLight.setIntensity(0);
+        /*if (lightAngle > 90) {
+            directionalLight.setIntensity(0);
+            if (lightAngle >= 360) {
+                lightAngle = -90;
+            }
+            sceneLight.getAmbientLight().set(0.3f, 0.3f, 0.4f);
+        } else if (lightAngle <= -80 || lightAngle >= 80) {
+            float factor = 1 - (float) (Math.abs(lightAngle) - 80) / 10.0f;
+            sceneLight.getAmbientLight().set(factor, factor, factor);
+            directionalLight.setIntensity(factor);
+            directionalLight.getColor().y = Math.max(factor, 0.9f);
+            directionalLight.getColor().z = Math.max(factor, 0.5f);
+        } else {
+            sceneLight.getAmbientLight().set(1, 1, 1);
+            directionalLight.setIntensity(1);
+            directionalLight.getColor().x = 1;
+            directionalLight.getColor().y = 1;
+            directionalLight.getColor().z = 1;
+        }
+        double angRad = Math.toRadians(lightAngle);
+        directionalLight.getDirection().x = (float) Math.sin(angRad);
+        directionalLight.getDirection().y = (float) Math.cos(angRad);*/
     }
 
     @Override
@@ -191,17 +190,35 @@ public class LobsterGame implements IGameLogic {
             window.setResized(false);
         }
 
-        renderer.render(window, camera, gameItems);
+        hud.updateSize(window);
+        //renderer.render(window, camera, gameItems, sceneLight, hud);
+        renderer.render(window, camera, scene, hud);
+        //gameItems, ambientLight, pointLightList, spotLightList, directionalLight);
 
     }
 
     @Override
     public void cleanup() {
         renderer.cleanup();
-
-        for (GameItem gameItem : gameItems) {
-            gameItem.getMesh().cleanUp();
+        if (gameItems != null) {
+            for (GameItem gameItem : gameItems) {
+                gameItem.getMesh().cleanUp();
+            }
         }
+        hud.cleanup();
+    }
+
+    private void setupLights() {
+        SceneLight sceneLight = new SceneLight();
+        scene.setSceneLight(sceneLight);
+
+        // Ambient Light
+        sceneLight.setAmbientLight(new Vector3f(1.0f, 1.0f, 1.0f));
+
+        // Directional Light
+        float lightIntensity = 1.0f;
+        Vector3f lightPosition = new Vector3f(-1, 0, 0);
+        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
     }
 
 }

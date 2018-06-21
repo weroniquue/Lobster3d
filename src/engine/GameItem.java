@@ -14,20 +14,22 @@ import engine.graph.Mesh;
  */
 public class GameItem {
 
-    private final Mesh mesh;
+    private Mesh mesh;
     private final Vector3f position;
     private float scale;
     private final Vector3f rotation;
-    
-    public boolean active=false;
-    
 
-    public GameItem(Mesh mesh) {
-        this.mesh = mesh;
+    public boolean active = false;
+
+    public GameItem() {
         position = new Vector3f(0, 0, 0);
         scale = 1;
         rotation = new Vector3f(0, 0, 0);
- 
+    }
+
+    public GameItem(Mesh mesh) {
+        this();
+        this.mesh = mesh;
     }
 
     public Vector3f getPosition() {
@@ -62,6 +64,10 @@ public class GameItem {
         return mesh;
     }
 
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -70,5 +76,4 @@ public class GameItem {
         this.active = active;
     }
 
-   
 }
