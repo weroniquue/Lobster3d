@@ -29,6 +29,7 @@ public class LobsterGame implements IGameLogic {
     private List<GameItem> gameItems;
     //private Scene scene;
     private SceneLight sceneLight;
+    private SkyBox skyBox;
     private Hud hud;
     private Scene scene;
 
@@ -60,7 +61,12 @@ public class LobsterGame implements IGameLogic {
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
 
-        /*float blockScale = 0.5f;
+        Mesh palm = OBJLoader.loadMesh("/models/palma.obj");
+        Texture palmTexture = new Texture("/textures/linia.png");
+        Material palmMaterial = new Material(palmTexture, reflectance);
+        palm.setMaterial(palmMaterial);
+        
+        float blockScale = 0.5f;
         float skyBoxScale = 10.0f;
         float extension = 2.0f;
 
@@ -72,32 +78,28 @@ public class LobsterGame implements IGameLogic {
         float posx = startx;
         float posz = startz;
         float incy = 0.0f;
-        int NUM_ROWS = (int) (extension * skyBoxScale * 2 / inc);
-        int NUM_COLS = (int) (extension * skyBoxScale * 2 / inc);
-        GameItem[] gameItems = new GameItem[NUM_ROWS * NUM_COLS];
-        for (int i = 0; i < NUM_ROWS; i++) {
-            for (int j = 0; j < NUM_COLS; j++) {
-                GameItem gameItem = new GameItem(mesh);
-                gameItem.setScale(blockScale);
+        
+        for (int i = 0; i < 10; i++) {
+                GameItem palmItem = new GameItem(palm);
+                palmItem.setScale(blockScale);
                 incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
-                gameItem.setPosition(posx, starty + incy, posz);
-                gameItems[i * NUM_COLS + j] = gameItem;
-
-                posx += inc;
-            }
-            posx = startx;
-            posz -= inc;
+                palmItem.setPosition(posx, starty + incy, posz);
+                gameItems.add(palmItem);
+            float pom = (float) Math.floor((float) Math.random() * (50 +50 +1) -50);
+            posx = pom;
+            posz -= inc + pom;
         }
-        scene.setGameItems(gameItems);*/
+        
         GameItem gameItem = new GameItem(mesh);
-        gameItem.setScale(1.5f);
+        gameItem.setScale(0.5f);
         gameItem.setPosition(0.0f, 0.0f, 0.0f);
 
+       
         gameItems.add(gameItem);
         scene.setGameItems(gameItems);
 
         // Setup  SkyBox
-        SkyBox skyBox = new SkyBox("/models/skybox.obj", "/textures/sbox.png");
+        skyBox = new SkyBox("/models/skybox.obj", "/textures/beach.png");
         skyBox.setScale(50.0f);
         scene.setSkyBox(skyBox);
 
@@ -117,14 +119,14 @@ public class LobsterGame implements IGameLogic {
     public void input(Window window, MouseInput mouseInput) {
         cameraInc.set(0, 0, 0);
         if (window.isKeyPressed(GLFW_KEY_UP)) {
-            cameraInc.z = -1;
+            cameraInc.z = -2;
         } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            cameraInc.z = 1;
+            cameraInc.z = 2;
         }
         if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-            cameraInc.x = -1;
+            cameraInc.x = -2;
         } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-            cameraInc.x = 1;
+            cameraInc.x = 2;
         }
         if (window.isKeyPressed(GLFW_KEY_Z)) {
             cameraInc.y = -1;
@@ -152,7 +154,10 @@ public class LobsterGame implements IGameLogic {
 
         // Update camera position
         camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
+        
 
+        
+        
         SceneLight sceneLight = scene.getSceneLight();
 
         // Update directional light direction, intensity and colour
