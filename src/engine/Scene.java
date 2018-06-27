@@ -5,8 +5,13 @@
  */
 package engine;
 
+import engine.items.SkyBox;
+import engine.items.GameItem;
+import engine.graph.Mesh;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -15,22 +20,41 @@ import java.util.List;
 public class Scene {
 
     private List<GameItem> gameItems;
+    private Map<Mesh, List<GameItem>> meshMap;
     private SkyBox skyBox;
     private SceneLight sceneLight;
 
     public Scene() {
         gameItems = new ArrayList<>();
+        meshMap = new HashMap();
     }
-
-   
-    
 
     public List<GameItem> getGameItems() {
         return gameItems;
     }
+    
+    public Map<Mesh, List<GameItem>> getGameMeshes() {
+        return meshMap;
+    }
 
     public void setGameItems(List<GameItem> gameItems) {
-        this.gameItems = gameItems;
+        int numGameItems = gameItems.size();
+        if(gameItems == null){
+            numGameItems = 0;
+        }
+        
+        for (int i=0; i<numGameItems; i++) {
+            GameItem gameItem = gameItems.get(i);
+            Mesh mesh = gameItem.getMesh();
+            List<GameItem> list = meshMap.get(mesh);
+            if ( list == null ) {
+                list = new ArrayList<>();
+                meshMap.put(mesh, list);
+            }
+            list.add(gameItem);
+        }
+        
+        //this.gameItems = gameItems;
     }
 
     public SkyBox getSkyBox() {

@@ -5,6 +5,9 @@
  */
 package engine.graph;
 
+import engine.graph.lights.SpotLight;
+import engine.graph.lights.PointLight;
+import engine.graph.lights.DirectionalLight;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;

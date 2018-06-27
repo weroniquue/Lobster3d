@@ -5,6 +5,7 @@
  */
 package engine;
 
+import engine.items.GameItem;
 import java.util.List;
 
 /**

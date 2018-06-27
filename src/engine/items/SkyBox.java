@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package engine;
+package engine.items;
 
+import engine.items.GameItem;
 import engine.graph.Material;
 import engine.graph.Mesh;
 import engine.graph.OBJLoader;

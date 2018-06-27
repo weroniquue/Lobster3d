@@ -7,9 +7,9 @@ package game;
 
 
 import org.joml.Vector4f;
-import engine.GameItem;
+import engine.items.GameItem;
 import engine.IHud;
-import engine.TextItem;
+import engine.items.TextItem;
 import engine.Window;
 import engine.graph.Material;
 import engine.graph.Mesh;

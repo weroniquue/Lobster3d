@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package engine.graph;
+package engine.graph.lights;
 
+import engine.graph.lights.PointLight;
 import org.joml.Vector3f;
 
 /**

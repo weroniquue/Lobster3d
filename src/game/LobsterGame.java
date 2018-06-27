@@ -5,13 +5,15 @@
  */
 package game;
 
+import engine.items.SkyBox;
+import engine.items.GameItem;
 import engine.*;
 import engine.graph.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
-import engine.graph.DirectionalLight;
+import engine.graph.lights.DirectionalLight;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,7 +113,7 @@ public class LobsterGame implements IGameLogic {
 
         camera.getPosition().x = 0.65f;
         camera.getPosition().y = 1.15f;
-        camera.getPosition().y = 4.34f;
+        camera.getPosition().z = 4.34f;
 
     }
 
@@ -141,7 +143,7 @@ public class LobsterGame implements IGameLogic {
     public void update(float interval, MouseInput mouseInput) {
 
         System.out.println("Camera:x "+ camera.getPosition().x + "y " + camera.getPosition().y + "z " + camera.getPosition().z);
-         System.out.println("Rotation:x "+ camera.getRotation().x + "y " + camera.getRotation().y + "z " + camera.getRotation().z);
+        System.out.println("Rotation:x "+ camera.getRotation().x + "y " + camera.getRotation().y + "z " + camera.getRotation().z);
         
         // Update camera based on mouse            
         if (mouseInput.isRightButtonPressed()) {
@@ -164,6 +166,10 @@ public class LobsterGame implements IGameLogic {
         DirectionalLight directionalLight = sceneLight.getDirectionalLight();
         lightAngle += 1.1f;
         directionalLight.setIntensity(0);
+        
+        //noc
+        //sceneLight.getAmbientLight().set(0.03f, 0.03f, 0.8f);
+        
         /*if (lightAngle > 90) {
             directionalLight.setIntensity(0);
             if (lightAngle >= 360) {
@@ -196,9 +202,7 @@ public class LobsterGame implements IGameLogic {
         }
 
         hud.updateSize(window);
-        //renderer.render(window, camera, gameItems, sceneLight, hud);
         renderer.render(window, camera, scene, hud);
-        //gameItems, ambientLight, pointLightList, spotLightList, directionalLight);
 
     }
 
