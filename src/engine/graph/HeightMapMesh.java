@@ -5,7 +5,6 @@
  */
 package engine.graph;
 
-import de.matthiasmann.twl.utils.PNGDecoder;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +18,19 @@ import engine.Utils;
 public class HeightMapMesh {
 
     private static final int MAX_COLOUR = 255 * 255 * 255;
-    private static final float STARTX = -0.5f;
-    private static final float STARTZ = -0.5f;
+    public static final float STARTX = -0.5f;
+    public static final float STARTZ = -0.5f;
     private final float minY;
     private final float maxY;
     private final Mesh mesh;
+    private final float[][] heightArray;
 
-    public HeightMapMesh(float minY, float maxY, String heightMapFile, String textureFile, int textInc) throws Exception {
+    public HeightMapMesh(float minY, float maxY, ByteBuffer heightMapImage, int width, int height, String textureFile, int textInc) throws Exception {
         this.minY = minY;
         this.maxY = maxY;
-
-        PNGDecoder decoder = new PNGDecoder(getClass().getResourceAsStream(heightMapFile));
-        int height = decoder.getHeight();
-        int width = decoder.getWidth();
-        ByteBuffer buf = ByteBuffer.allocateDirect(
-                4 * decoder.getWidth() * decoder.getHeight());
-        decoder.decode(buf, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
-        buf.flip();
-
+        
+        heightArray = new float[height][width];
+        
         Texture texture = new Texture(textureFile);
 
         float incx = getXLength() / (width - 1);
@@ -50,7 +44,7 @@ public class HeightMapMesh {
             for (int col = 0; col < width; col++) {
                 // Create vertex for current position
                 positions.add(STARTX + col * incx); // x
-                positions.add(getHeight(col, row, width, buf)); //y
+                positions.add(getHeight(col, row, width, heightMapImage)); //y
                 positions.add(STARTZ + row * incz); //z
 
                 // Set texture coordinates
@@ -81,6 +75,16 @@ public class HeightMapMesh {
         this.mesh = new Mesh(posArr, textCoordsArr, normalsArr, indicesArr);
         Material material = new Material(texture, 0.0f);
         mesh.setMaterial(material);
+    }
+
+      public float getHeight(int row, int col) {
+        float result = 0;
+        if ( row >= 0 && row < heightArray.length ) {
+            if ( col >= 0 && col < heightArray[row].length ) {
+                result = heightArray[row][col];
+            }
+        }
+        return result;
     }
 
     public Mesh getMesh() {
