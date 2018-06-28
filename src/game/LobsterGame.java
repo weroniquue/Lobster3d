@@ -65,8 +65,8 @@ public class LobsterGame implements IGameLogic {
         float minY = -0.1f;
         float maxY = 0.1f;
         int textInc = 40;
-        //terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "/textures/heightmap2.png", "/textures/ground.png", textInc);
-        //scene.setGameItems(terrain.getGameItems());
+        terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "/textures/heightmap2.png", "/textures/ground.png", textInc);
+        scene.setGameItems(terrain.getGameItems());
 
         //Setup GameItems
         float reflectance = 1f;
@@ -75,17 +75,23 @@ public class LobsterGame implements IGameLogic {
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
 
-        Mesh palm = OBJLoader.loadMesh("/models/palma2.obj");
-        Texture palmTexture = new Texture("/textures/pala2.png");
-        Material palmMaterial = new Material(palmTexture, reflectance);
-        palm.setMaterial(palmMaterial);
+        Mesh palmLeaf = OBJLoader.loadMesh("/models/liscie.obj");
+        Texture palmLeafTexture = new Texture("/textures/lisc.png");
+        Material palmLeafMaterial = new Material(palmLeafTexture, reflectance);
+        palmLeaf.setMaterial(palmLeafMaterial);
+        
+        Mesh palmTrunk = OBJLoader.loadMesh("/models/pien.obj");
+        Texture palmTrunkTexture = new Texture("/textures/pien.png");
+        Material palmTrunkMaterial = new Material(palmTrunkTexture, reflectance);
+        palmTrunk.setMaterial(palmTrunkMaterial);
+        
 
         float blockScale = 0.25f;
-        float extension = 2.0f;
 
-        float startx = extension * (-skyBoxScale + blockScale);
-        float startz = extension * (skyBoxScale - blockScale);
-        float starty = -1.0f;
+
+        float startx = -skyBoxScale*0.1f + blockScale;
+        float startz = skyBoxScale*0.1f - blockScale;
+        float starty = -2.65f;
         float inc = blockScale * 2;
 
         float posx = startx;
@@ -93,23 +99,21 @@ public class LobsterGame implements IGameLogic {
         float incy = 0.0f;
 
         for (int i = 0; i < 10; i++) {
-            GameItem palmItem = new GameItem(palm);
-            palmItem.setScale(blockScale);
+            GameItem palmLeafItem = new GameItem(palmLeaf);
+            GameItem palmTrunkItem = new GameItem(palmTrunk);
+            palmLeafItem.setScale(blockScale);
+            palmTrunkItem.setScale(blockScale);
             incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
-            palmItem.setPosition(posx, starty + incy, posz);
-            System.out.println(palmItem.getPosition());
-            gameItems.add(palmItem);
+            palmLeafItem.setPosition(posx, starty + incy, posz);
+            palmTrunkItem.setPosition(posx, starty + incy, posz);
+            System.out.println(palmLeafItem.getPosition());
+            gameItems.add(palmLeafItem);
+            gameItems.add(palmTrunkItem);
             float pom = (float) Math.floor((float) Math.random() * (50 + 50 + 1) - 50);
             posx = pom;
             posz -= inc + pom;
         }
-
-        /*gameItem = new GameItem(mesh);
-        gameItem.setScale(0.5f);
-        gameItem.setPosition(camera.getPosition().x + 3.0f, camera.getPosition().y, camera.getPosition().z);
-        System.out.println("Kubełek:" + gameItem.getPosition());
-        gameItems.add(gameItem);*/
-
+        
         //Parasolki:
         Mesh umbrella = OBJLoader.loadMesh("/models/Umbrella2.obj");
         Texture umbrellaTexture = new Texture("/textures/stripes.png");
@@ -140,7 +144,7 @@ public class LobsterGame implements IGameLogic {
 
             GameItem sunBedItem = new GameItem(sunbed);
             sunBedItem.setScale(0.4f);
-            sunBedItem.setPosition(sunbedOne, -2.65f, 0.0f);
+            sunBedItem.setPosition(sunbedOne, -2.40f, 0.0f);
             gameItems.add(sunBedItem);
             sunbedOne+=distanceSunbed;
 
@@ -151,7 +155,7 @@ public class LobsterGame implements IGameLogic {
         bridge.setMaterial(sunbedMaterial);
         
         GameItem bridgeItem = new GameItem(bridge);
-        bridgeItem.setPosition(10.0f, -5.0f, -40.0f);
+        bridgeItem.setPosition(10.0f, -5.5f, -45.0f);
         bridgeItem.setRotation(0.0f, 90.0f, 0.0f);
         gameItems.add(bridgeItem);
         
@@ -169,10 +173,11 @@ public class LobsterGame implements IGameLogic {
         // Create HUD
         hud = new Hud("DEMO");
 
-        camera.getPosition().x = 0.0f;
+        camera.getPosition().x = 5.0f;
         camera.getPosition().y = -0.65f;
-        camera.getPosition().z = 0.0f;
-        camera.getRotation().x = 2.0f;
+        camera.getPosition().z = -10.0f;
+        camera.getRotation().x = 8.0f;
+        camera.getRotation().y = -158.0f;
 
     }
 
@@ -208,7 +213,7 @@ public class LobsterGame implements IGameLogic {
     public void update(float interval, MouseInput mouseInput) {
 
         System.out.println("Kamera aktualna: x: " + camera.getPosition().x + " y: " + camera.getPosition().y + " z: " + camera.getPosition().z);
-        //System.out.println("Rotation:x " + camera.getRotation().x + "y " + camera.getRotation().y + "z " + camera.getRotation().z);
+        System.out.println("Rotation:x " + camera.getRotation().x + "y " + camera.getRotation().y + "z " + camera.getRotation().z);
 
         // Update camera based on mouse            
         if (mouseInput.isRightButtonPressed()) {
@@ -260,12 +265,12 @@ public class LobsterGame implements IGameLogic {
 
         //noc
         //sceneLight.getAmbientLight().set(0.03f, 0.03f, 0.8f);
-        if (lightAngle > 90) {
+        /*if (lightAngle > 90) {
             directionalLight.setIntensity(0);
             if (lightAngle >= 360) {
                 lightAngle = -90;
             }
-            sceneLight.getAmbientLight().set(0.3f, 0.3f, 0.4f);
+            sceneLight.getAmbientLight().set(0.03f, 0.03f, 0.8f);
         } else if (lightAngle <= -80 || lightAngle >= 80) {
             float factor = 1 - (float) (Math.abs(lightAngle) - 80) / 10.0f;
             sceneLight.getAmbientLight().set(factor, factor, factor);
@@ -281,7 +286,7 @@ public class LobsterGame implements IGameLogic {
         }
         double angRad = Math.toRadians(lightAngle);
         directionalLight.getDirection().x = (float) Math.sin(angRad);
-        directionalLight.getDirection().y = (float) Math.cos(angRad);
+        directionalLight.getDirection().y = (float) Math.cos(angRad);*/
     }
 
     @Override
